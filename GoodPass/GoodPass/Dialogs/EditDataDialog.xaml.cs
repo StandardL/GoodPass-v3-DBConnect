@@ -10,6 +10,7 @@ public sealed partial class EditDataDialog : ContentDialog
     {
         get; set;
     }
+    public SQlEditDataResult SQLResult { get; set; }
 
     //旧数据
     private readonly string oldAccountName;
@@ -313,7 +314,7 @@ public sealed partial class EditDataDialog : ContentDialog
             {
                 newPlatformUrl = EditDataDialog_PlatformUrlBox.Text;
                 var check = App.DataManager.ChangeUrl(oldPlatformName, oldAccountName, EditDataDialog_PlatformUrlBox.Text);
-                App.SQLManager.UpdateData_Url(oldPlatformName, oldAccountName, EditDataDialog_PlatformUrlBox.Text, DateTime.Now);  // SQL修改
+                var sql_check = App.SQLManager.UpdateData_Url(oldPlatformName, oldAccountName, EditDataDialog_PlatformUrlBox.Text, DateTime.Now);  // SQL修改
                 if (check)
                 {
                     this.Result = EditDataResult.Success;
@@ -322,12 +323,21 @@ public sealed partial class EditDataDialog : ContentDialog
                 {
                     this.Result = EditDataResult.Failure;
                 }
+
+                if (sql_check)
+                {
+                    this.SQLResult = SQlEditDataResult.Success;
+                }
+                else
+                {
+                    this.SQLResult = SQlEditDataResult.Failure;
+                }
             }
             if (EditDataDialog_PasswordBox.Password != oldPassword)
             {
                 newPassword = EditDataDialog_PasswordBox.Password;
                 var check = App.DataManager.ChangePassword(oldPlatformName, oldAccountName, EditDataDialog_PasswordBox.Password);
-                App.SQLManager.UpdateData_Password(oldPlatformName, oldAccountName, GoodPassCryptographicServices.EncryptStr(EditDataDialog_PasswordBox.Password), DateTime.Now);
+                var sql_check = App.SQLManager.UpdateData_Password(oldPlatformName, oldAccountName, GoodPassCryptographicServices.EncryptStr(EditDataDialog_PasswordBox.Password), DateTime.Now);
                 switch (check)
                 {
                     case "Success":
@@ -343,12 +353,21 @@ public sealed partial class EditDataDialog : ContentDialog
                         this.Result = EditDataResult.UnknowError;
                         break;
                 }
+
+                if (sql_check)
+                {
+                    this.SQLResult = SQlEditDataResult.Success;
+                }
+                else
+                {
+                    this.SQLResult = SQlEditDataResult.Failure;
+                }
             }
             if (EditDataDialog_AccountBox.Text != oldAccountName)
             {
                 newAccountName = EditDataDialog_AccountBox.Text;
                 var check = App.DataManager.ChangeAccountName(oldPlatformName, oldAccountName, EditDataDialog_AccountBox.Text);
-                App.SQLManager.UpdateData_AccountName(oldPlatformName, oldAccountName, EditDataDialog_AccountBox.Text, DateTime.Now);  // SQL修改
+                var sql_check = App.SQLManager.UpdateData_AccountName(oldPlatformName, oldAccountName, EditDataDialog_AccountBox.Text, DateTime.Now);  // SQL修改
                 if (check)
                 {
                     if (check)
@@ -363,6 +382,15 @@ public sealed partial class EditDataDialog : ContentDialog
                 {
                     this.Result = EditDataResult.Failure;
                 }
+
+                if (sql_check)
+                {
+                    this.SQLResult = SQlEditDataResult.Success;
+                }
+                else
+                {
+                    this.SQLResult = SQlEditDataResult.Failure;
+                }
             }
             if (EditDataDialog_PlatformBox.Text != oldPlatformName)
             {
@@ -371,7 +399,7 @@ public sealed partial class EditDataDialog : ContentDialog
                 {
                     var newAccountName = EditDataDialog_AccountBox.Text;
                     var check = App.DataManager.ChangePlatformName(oldPlatformName, newAccountName, EditDataDialog_PlatformBox.Text);
-                    App.SQLManager.UpdateData_PlatformName(oldPlatformName, newAccountName, EditDataDialog_PlatformBox.Text, DateTime.Now);  // SQL修改
+                    var sql_check = App.SQLManager.UpdateData_PlatformName(oldPlatformName, newAccountName, EditDataDialog_PlatformBox.Text, DateTime.Now);  // SQL修改
                     if (check)
                     {
                         this.Result = EditDataResult.Success;
@@ -379,12 +407,20 @@ public sealed partial class EditDataDialog : ContentDialog
                     else
                     {
                         this.Result = EditDataResult.Failure;
+                    }
+                    if (sql_check)
+                    {
+                        this.SQLResult = SQlEditDataResult.Success;
+                    }
+                    else
+                    {
+                        this.SQLResult = SQlEditDataResult.Failure;
                     }
                 }
                 else
                 {
                     var check = App.DataManager.ChangePlatformName(oldPlatformName, oldAccountName, EditDataDialog_PlatformBox.Text);
-                    App.SQLManager.UpdateData_PlatformName(oldPlatformName, oldAccountName, EditDataDialog_PlatformBox.Text, DateTime.Now);  // SQL修改
+                    var sql_check = App.SQLManager.UpdateData_PlatformName(oldPlatformName, oldAccountName, EditDataDialog_PlatformBox.Text, DateTime.Now);  // SQL修改
                     if (check)
                     {
                         this.Result = EditDataResult.Success;
@@ -392,6 +428,14 @@ public sealed partial class EditDataDialog : ContentDialog
                     else
                     {
                         this.Result = EditDataResult.Failure;
+                    }
+                    if (sql_check)
+                    {
+                        this.SQLResult = SQlEditDataResult.Success;
+                    }
+                    else
+                    {
+                        this.SQLResult = SQlEditDataResult.Failure;
                     }
                 }
             }

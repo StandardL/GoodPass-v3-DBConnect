@@ -15,7 +15,7 @@
         <TextBlock
             x:Name="MySQLConnectionErrorTextbox"
             x:Uid="MySQLConnectionErrorTextbox"
-            MaxWidth="300"
+            MaxWidth="400"
             TextWrapping="WrapWholeWords" />
     </StackPanel>
 </ContentDialog>

@@ -10,6 +10,26 @@ public enum AddDataResult
     Failure,
     Undetermined
 }
+/// <summary>
+/// AddDataSQL处理结果
+/// </summary>
+public enum SQLAddDataResult
+{
+    Success,
+    Failure_Duplicate,
+    Failure,
+    Undetermined
+}
+/// <summary>
+/// EditDataSQL处理结果
+/// </summary>
+public enum SQlEditDataResult
+{
+    Success,
+    Failure_Duplicate,
+    Failure,
+    Undetermined
+}
 
 /// <summary>
 /// EditDataDialog的处理结果

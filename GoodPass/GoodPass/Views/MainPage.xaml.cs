@@ -188,6 +188,7 @@ public partial class MainPage : Page
         try
         {
             App.SQLManager ??= new MySQLConnectionService();  //为空时新建数据库链接实例
+            App.SQLManager.ConnectionState();
         }
         catch(Exception me)
         {
@@ -282,6 +283,7 @@ public partial class MainPage : Page
             try
             {
                 App.SQLManager ??= new MySQLConnectionService();  //为空时新建数据库链接实例
+                App.SQLManager.ConnectionState();
             }
             catch (Exception me)
             {

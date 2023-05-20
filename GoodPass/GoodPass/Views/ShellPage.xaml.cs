@@ -4,6 +4,7 @@ using GoodPass.Dialogs;
 using GoodPass.Helpers;
 using GoodPass.Services;
 using GoodPass.ViewModels;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -169,6 +170,14 @@ public partial class ShellPage : Page
                 await App.DataManager.SaveToFileAsync($"C:\\Users\\{Environment.UserName}\\AppData\\Local\\GoodPass\\GoodPassData.csv");
             }
 
+            if (addDataDialog.SQLResult == Models.SQLAddDataResult.Success)
+            {
+                SQLConnectionSuccess("");
+            }
+            else if (addDataDialog.SQLResult == Models.SQLAddDataResult.Failure_Duplicate)
+            {
+                SQLConnectionError("插入到MySQL服务器中失败！");
+            }
         }
         else
         {
@@ -186,6 +195,10 @@ public partial class ShellPage : Page
         {
             ShellMenuSearchTip.IsOpen = true;
         }
+        if (App.SQLManager != null && App.SQLManager.Connected == false)
+        {
+            SQLConnectionWarning("因为MySQL服务器连接失败，对服务器进行搜索的功能已禁用");
+        }
     }
 
     /// <summary>
@@ -200,7 +213,10 @@ public partial class ShellPage : Page
             var suitableItems = new List<string>();
             var text = sender.Text;
             var matchDatas = App.DataManager.SuggestSearch(text);
-            var matchDatasDB = App.SQLManager.SearchData(text);
+            List<Models.GPData> matchDatasDB = null;
+
+            if (App.SQLManager.Connected)
+               matchDatasDB = App.SQLManager.SearchData(text);
 
             foreach (var data in matchDatas)
             {
@@ -237,7 +253,10 @@ public partial class ShellPage : Page
             }
             else
             {
-                var splitText = slectedItem.ToString().Split(" - ");
+                var originText = slectedItem.ToString();
+                var appendindex = originText.IndexOf("(Cloud Database)");
+                originText = originText.Remove(appendindex - 1);
+                var splitText = originText.Split(" - ");
                 var platformName = splitText[0];
                 var accountName = splitText[1];
                 var index = App.DataManager.AccurateSearch(platformName, accountName);
@@ -333,18 +352,37 @@ public partial class ShellPage : Page
     #endregion
 
     #region InfoBar Functions
-    public void SQLConnectionError(string  message)
+    public void SQLConnectionWarning(string  message)
     {
-        //ShellpageInfoBar.Severity = InfoBarSeverity.Error;
-        //ShellpageInfoBar.Title = "MySQL Server Connection Fail";
-        //ShellpageInfoBar.Message = message + "\nPlease check MySQL server state.";
-        //ShellpageInfoBar.IsOpen = true;
+        ShellpageInfoBar.Severity = InfoBarSeverity.Warning;
+        ShellpageInfoBar.Title = "MySQL Server Connection Fail";
+        ShellpageInfoBar.Message = message + "\nPlease check MySQL server state.";
+        ShellpageInfoBar.IsOpen = true;
     }
-
-
+    public void SQLConnectionError(string message)
+    {
+        ShellpageInfoBar.Severity = InfoBarSeverity.Error;
+        ShellpageInfoBar.Title = "MySQL Server Connection Error";
+        ShellpageInfoBar.Message = message + "\nPlease check MySQL server state.";
+        ShellpageInfoBar.IsOpen = true;
+    }
+    public void SQLConnectionSuccess()
+    {
+        ShellpageInfoBar.Severity = InfoBarSeverity.Success;
+        ShellpageInfoBar.Title = "MySQL Server Connection Success";
+        ShellpageInfoBar.Message = "Your modification is sync to MySQL server.";
+        ShellpageInfoBar.IsOpen = true;
+    }
+    public void SQLConnectionSuccess(string message)
+    {
+        ShellpageInfoBar.Severity = InfoBarSeverity.Success;
+        ShellpageInfoBar.Title = "MySQL Server Connection Success";
+        ShellpageInfoBar.Message = message;
+        ShellpageInfoBar.IsOpen = true;
+    }
     #endregion
 
-    #region Checking MySQL Conneciton Functions
+    #region Checking MySQL Conneciton Functions (Every 10sec)
     /// <summary>
     /// Timing code are written by ChatGPT (12th, May version)
     /// Debug and Update by @StandardL
@@ -355,7 +393,6 @@ public partial class ShellPage : Page
         timer.Interval = 10000; // 10 seconds in milliseconds
         timer.Elapsed += TimerElapsed;
         timer.Start();
-        //mainView = CoreApplication.MainView;
     }
     private void StopTimer()
     {
@@ -377,12 +414,13 @@ public partial class ShellPage : Page
         {
             // MySQL server is connected
             // Update UI or perform necessary actions
-            ShellMenuBarDatabaseInfoBadge.Style = SuccessInfoBadge.Style;
+            SetIconGreen();
         }
         else
         {
             // MySQL server is not connected
             // Update UI or perform necessary actions
+            SetIconRed();
         }
     }
     private async Task<bool> CheckMySQLServerConnection()
@@ -412,7 +450,7 @@ public partial class ShellPage : Page
         {
             SQLConnectionError(ex.Message);
         }
-
+        await Task.CompletedTask;
         return isConnected;
     }
     private void ShellMenuBarDatabaseConnectionSwitch_Toggled(object sender, RoutedEventArgs e)
@@ -422,13 +460,64 @@ public partial class ShellPage : Page
         {
             if (toggleSwitch.IsOn == true)
             {
-                StartTimer();
-            }
+                StartTimer();            }
             else
             {
                 StopTimer();
             }
         }
     }
+
+    private void SetIconGreen()
+    {
+        SuccessInfoBadge.Visibility = Visibility.Visible;
+        FailInfoBadge.Visibility = Visibility.Collapsed;
+    }
+    private void SetIconRed()
+    {
+        FailInfoBadge.Visibility = Visibility.Visible;
+        SuccessInfoBadge.Visibility = Visibility.Collapsed;
+    }
     #endregion
+
+    #region 点击时检测MySQL连接情况
+    private void ShellMenuBarDatabaseInfoButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (CheckMySQLConnection())
+        {
+            SetIconGreen();
+            SQLConnectionSuccess("MySQL服务器连接成功！");
+        }
+        else
+        {
+            SQLConnectionWarning("MySQL服务器连接失败，请先解锁后再次尝试，然后检查本机网络连接和MySQL服务是否正常！");
+            SetIconRed();
+        }
+    }
+
+    private bool CheckMySQLConnection()
+    {
+        // Implement your logic to check MySQL server connection
+        // You can use libraries like MySQL Connector/NET to establish a connection
+        // Return true if the server is connected, false otherwise
+
+        bool isConnected = false;
+
+        try
+        {
+            if (App.SQLManager !=  null)
+            {
+                isConnected = App.SQLManager.ConnectionState();
+            }
+        }
+        catch (Exception ex)
+        {
+            SQLConnectionError(ex.Message);
+        }
+        
+        return isConnected;
+    }
+    #endregion
+
+
 }

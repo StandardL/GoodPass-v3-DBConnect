@@ -10,6 +10,7 @@ public sealed partial class AddDataDialog : ContentDialog
     {
         get; set;
     }
+    public SQLAddDataResult SQLResult { get; set; }
 
     public AddDataDialog()
     {
@@ -269,7 +270,18 @@ public sealed partial class AddDataDialog : ContentDialog
             if (newdata != null)
             {
                 App.ListDetailsVM.AddDataItem(newdata);
-                App.SQLManager.AddData(newdata);  // SQL增加
+                try
+                {
+                    var res = App.SQLManager.AddData(newdata);  // SQL增加
+                    if (res)
+                        this.SQLResult = SQLAddDataResult.Success;
+                    else
+                        this.SQLResult = SQLAddDataResult.Failure_Duplicate;
+                }
+                catch(Exception ex) 
+                {
+                    this.SQLResult = SQLAddDataResult.Failure_Duplicate;
+                }
                 this.Result = AddDataResult.Success;
             }
             else

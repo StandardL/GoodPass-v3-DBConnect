@@ -154,6 +154,8 @@ public sealed partial class ListDetailsDetailControl : UserControl
         };
         ListDetailsDetailControl_DeleteButton.IsEnabled = false;
         var result = await dialog.ShowAsync();
+        bool sql_result = false;
+
         if (result == ContentDialogResult.Primary)
         {
             var tarPlatform = ListDetailsMenuItem.PlatformName;
@@ -161,14 +163,14 @@ public sealed partial class ListDetailsDetailControl : UserControl
             try
             {
                 App.ListDetailsVM.DeleteDataItem(App.DataManager.GetData(tarPlatform, tarAccountName));
-                App.SQLManager.DeleteData(tarPlatform, tarAccountName);  // SQL删除
+                sql_result = App.SQLManager.DeleteData(tarPlatform, tarAccountName);  // SQL删除
 
                 var delResult = App.DataManager.DeleteData(tarPlatform, tarAccountName);
                 if (delResult == false)
                     throw new GPObjectNotFoundException("Data Not Found!");
                 else
                     await App.DataManager.SaveToFileAsync($"C:\\Users\\{Environment.UserName}\\AppData\\Local\\GoodPass\\GoodPassData.csv");
-                ListDetailsDetailControl_DeleteButton.IsEnabled = true;
+                ListDetailsDetailControl_DeleteButton.IsEnabled = true;    
             }
             catch (System.ArgumentOutOfRangeException)
             {
@@ -192,6 +194,19 @@ public sealed partial class ListDetailsDetailControl : UserControl
         else
         {
             ListDetailsDetailControl_DeleteButton.IsEnabled = true;
+        }
+
+        if (sql_result == false)
+        {
+            var message = "因为某种原因，向MySQL发起删除请求失败。请检查以下几种情况：\n1.MySQL服务是否能正常连接？可以点击右上角的云朵图标进行检查" +
+                          "\n2.是否删除了不存在的内容？\n3.若前面几点已确认无异常，请及时向开发者反馈.";
+            MySQLConnectionErrorDialog mySQLConnectionErrorDialog = new MySQLConnectionErrorDialog("MySQL Delete Failed", message)
+            {
+                XamlRoot = this.XamlRoot,
+                Style = App.Current.Resources["DefaultContentDialogStyle"] as Style
+            };
+            _ = await mySQLConnectionErrorDialog.ShowAsync();
+
         }
     }
     #endregion

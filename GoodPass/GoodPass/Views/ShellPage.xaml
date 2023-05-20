@@ -168,6 +168,7 @@
                 x:Name="ShellMenuBarDatabaseInfoButton"
                 x:Uid="ShellMenuBarDatabaseInfoButton"
                 Grid.Column="5"
+                Click="ShellMenuBarDatabaseInfoButton_Click"
                 AnimatedIcon.State="Normal">
                 <FontIcon
                     x:Name="ShellMenuBarDatabaseInfoIcon"
@@ -181,21 +182,24 @@
                         <StackPanel MaxWidth="250" Orientation="Vertical">
                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                 <TextBlock x:Name="ShellMenuBarDatabaseInfoIconText" x:Uid="ShellMenuBarDatabaseInfoIconText" />
-                                <InfoBadge
+                                <!--<InfoBadge
                                     x:Name="ShellMenuBarDatabaseInfoBadge"
                                     Margin="5,0,0,0"
                                     VerticalAlignment="Bottom"
-                                    Style="{ThemeResource CriticalIconInfoBadgeStyle}" />
+                                    Style="{ThemeResource CriticalIconInfoBadgeStyle}"
+                                    Visibility="Collapsed" />-->
                                 <InfoBadge
                                     x:Name="SuccessInfoBadge"
-                                    IsEnabled="False"
+                                    Margin="5,0,0,0"
+                                    VerticalAlignment="Bottom"
                                     Style="{ThemeResource SuccessIconInfoBadgeStyle}"
                                     Visibility="Collapsed" />
                                 <InfoBadge
                                     x:Name="FailInfoBadge"
-                                    IsEnabled="False"
+                                    Margin="5,0,0,0"
+                                    VerticalAlignment="Bottom"
                                     Style="{ThemeResource CriticalIconInfoBadgeStyle}"
-                                    Visibility="Collapsed" />
+                                    Visibility="Visible" />
                             </StackPanel>
                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                 <TextBlock
@@ -206,6 +210,7 @@
                                 <ToggleSwitch
                                     x:Name="ShellMenuBarDatabaseConnectionSwitch"
                                     Margin="5,0,0,0"
+                                    IsEnabled="False"
                                     Toggled="ShellMenuBarDatabaseConnectionSwitch_Toggled" />
                             </StackPanel>
                         </StackPanel>
