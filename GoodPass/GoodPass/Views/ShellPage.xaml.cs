@@ -1,4 +1,5 @@
-﻿using GoodPass.Contracts.Services;
+﻿using System.Timers;
+using GoodPass.Contracts.Services;
 using GoodPass.Dialogs;
 using GoodPass.Helpers;
 using GoodPass.Services;
@@ -11,13 +12,18 @@ using Windows.System;
 
 namespace GoodPass.Views;
 
-public sealed partial class ShellPage : Page
+public partial class ShellPage : Page
 {
+    #region Properties
     public ShellViewModel ViewModel
     {
         get;
     }
 
+    private System.Timers.Timer timer;  // 计时器
+    #endregion
+
+    #region Constructor and Basic Handlers
     public ShellPage(ShellViewModel viewModel)
     {
         ViewModel = viewModel;
@@ -42,6 +48,7 @@ public sealed partial class ShellPage : Page
         App.MainWindow.SetTitleBar(AppTitleBar);
         App.MainWindow.Activated += MainWindow_Activated;
         AppTitleBarText.Text = "AppDisplayName".GetLocalized();
+
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -59,6 +66,9 @@ public sealed partial class ShellPage : Page
         ShellMenuSearchButton.AddHandler(UIElement.PointerExitedEvent, new PointerEventHandler(ShellAnimatedIcon_PointerExited), true);
         ShellMenuSearchButton.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(ShellAnimatedIcon_PointerPressed), true);
         ShellMenuSearchButton.AddHandler(UIElement.PointerReleasedEvent, new PointerEventHandler(ShellAnimatedIcon_PointerReleased), true);
+
+        Grid.SetRow(App.infoBar, 3);
+        AppTitleBar.Children.Add(App.infoBar);
     }
 
     private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
@@ -122,7 +132,9 @@ public sealed partial class ShellPage : Page
     {
         AnimatedIcon.SetState((UIElement)sender, "Normal");
     }
+    #endregion
 
+    #region AddDataButton Functions
     /// <summary>
     /// 添加数据按钮的事件响应
     /// </summary>
@@ -140,7 +152,7 @@ public sealed partial class ShellPage : Page
                 XamlRoot = this.XamlRoot,
                 Style = App.Current.Resources["DefaultContentDialogStyle"] as Style
             };
-            var result = await addDataDialog.ShowAsync();
+            _ = await addDataDialog.ShowAsync();
             if (addDataDialog.Result == Models.AddDataResult.Failure_Duplicate)
             {
                 GPDialog2 warningdialog = new()
@@ -164,12 +176,10 @@ public sealed partial class ShellPage : Page
         }
     }
 
-    private async void OOBE_AddDataTip_CloseButtonClick(TeachingTip sender, object args)
-    {
-        OOBE_AddDataTip.IsOpen = false;
-        _ = await OOBEServices.SetOOBEStatusAsync("ShellOOBE", Models.OOBESituation.DIsableOOBE);
-    }
 
+    #endregion
+
+    #region SearchButton Functions 
     private void ShellMenuSearchButton_Click(object sender, RoutedEventArgs e)
     {
         if (!App.App_IsLock() && !App.IsInSettingsPage())
@@ -190,10 +200,20 @@ public sealed partial class ShellPage : Page
             var suitableItems = new List<string>();
             var text = sender.Text;
             var matchDatas = App.DataManager.SuggestSearch(text);
+            var matchDatasDB = App.SQLManager.SearchData(text);
+
             foreach (var data in matchDatas)
             {
                 suitableItems.Add($"{data.PlatformName} - {data.AccountName}");
             }
+            if (matchDatasDB != null)
+            {
+                foreach (var data in matchDatasDB)
+                {
+                    suitableItems.Add($"{data.PlatformName} - {data.AccountName} (Cloud Database)");
+                }
+            }
+            
             if (suitableItems.Count == 0)
             {
                 suitableItems.Add("No results found");
@@ -210,7 +230,7 @@ public sealed partial class ShellPage : Page
     private void AutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
     {
         var slectedItem = args.SelectedItem;
-        if (slectedItem != null)
+        if (slectedItem is not null)
         {
             if (slectedItem.ToString() == "No results found")
             {
@@ -229,12 +249,9 @@ public sealed partial class ShellPage : Page
             throw new ArgumentNullException("AutoSuggestBox_SuggestionChosen: SelectedItem is null");
         }
     }
+    #endregion
 
-    private async void OOBE_SearchTip_CloseButtonClick(TeachingTip sender, object args)
-    {
-        await OOBEServices.SetOOBEStatusAsync("SearchOOBE", Models.OOBESituation.DIsableOOBE);
-    }
-
+    #region ExportButton Functions
     /// <summary>
     /// 导出加密数据
     /// </summary>
@@ -300,4 +317,118 @@ public sealed partial class ShellPage : Page
             }
         }
     }
+    #endregion
+
+    #region TeachingTip Functions
+    private async void OOBE_AddDataTip_CloseButtonClick(TeachingTip sender, object args)
+    {
+        OOBE_AddDataTip.IsOpen = false;
+        _ = await OOBEServices.SetOOBEStatusAsync("ShellOOBE", Models.OOBESituation.DIsableOOBE);
+    }
+
+    private async void OOBE_SearchTip_CloseButtonClick(TeachingTip sender, object args)
+    {
+        await OOBEServices.SetOOBEStatusAsync("SearchOOBE", Models.OOBESituation.DIsableOOBE);
+    }
+    #endregion
+
+    #region InfoBar Functions
+    public void SQLConnectionError(string  message)
+    {
+        //ShellpageInfoBar.Severity = InfoBarSeverity.Error;
+        //ShellpageInfoBar.Title = "MySQL Server Connection Fail";
+        //ShellpageInfoBar.Message = message + "\nPlease check MySQL server state.";
+        //ShellpageInfoBar.IsOpen = true;
+    }
+
+
+    #endregion
+
+    #region Checking MySQL Conneciton Functions
+    /// <summary>
+    /// Timing code are written by ChatGPT (12th, May version)
+    /// Debug and Update by @StandardL
+    /// </summary>
+    private void StartTimer()
+    {
+        timer = new System.Timers.Timer();
+        timer.Interval = 10000; // 10 seconds in milliseconds
+        timer.Elapsed += TimerElapsed;
+        timer.Start();
+        //mainView = CoreApplication.MainView;
+    }
+    private void StopTimer()
+    {
+        if (timer != null)
+        {
+            timer.Stop();
+            timer.Elapsed -= TimerElapsed;
+            timer.Dispose();
+            timer = null;
+        }
+    }
+    private async void TimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        // Perform MySQL server connection status check here
+        bool isConnected = await CheckMySQLServerConnection();
+
+        // Update UI or perform any other actions based on the connection status
+        if (isConnected)
+        {
+            // MySQL server is connected
+            // Update UI or perform necessary actions
+            ShellMenuBarDatabaseInfoBadge.Style = SuccessInfoBadge.Style;
+        }
+        else
+        {
+            // MySQL server is not connected
+            // Update UI or perform necessary actions
+        }
+    }
+    private async Task<bool> CheckMySQLServerConnection()
+    {
+        // Implement your logic to check MySQL server connection
+        // You can use libraries like MySQL Connector/NET to establish a connection
+        // Return true if the server is connected, false otherwise
+
+        bool isConnected = true;
+
+        try
+        {
+            // Establish MySQL server connection
+            // Example code:
+            // MySqlConnection connection = new MySqlConnection("your_connection_string");
+            // await connection.OpenAsync();
+
+            // Check the connection state
+            // Example code:
+            // isConnected = connection.State == ConnectionState.Open;
+
+            // Close the connection
+            // Example code:
+            // connection.Close();
+        }
+        catch (Exception ex)
+        {
+            SQLConnectionError(ex.Message);
+        }
+
+        return isConnected;
+    }
+    private void ShellMenuBarDatabaseConnectionSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        ToggleSwitch toggleSwitch = sender as ToggleSwitch;
+        if (toggleSwitch != null)
+        {
+            if (toggleSwitch.IsOn == true)
+            {
+                StartTimer();
+            }
+            else
+            {
+                StopTimer();
+            }
+        }
+    }
+    #endregion
 }

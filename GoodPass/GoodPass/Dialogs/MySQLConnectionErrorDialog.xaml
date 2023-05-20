@@ -1,0 +1,21 @@
+﻿<ContentDialog
+    x:Class="GoodPass.Dialogs.MySQLConnectionErrorDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:GoodPass.Dialogs"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="MySQLException"
+    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
+    DefaultButton="Primary"
+    PrimaryButtonText="确定"
+    mc:Ignorable="d">
+
+    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <TextBlock
+            x:Name="MySQLConnectionErrorTextbox"
+            x:Uid="MySQLConnectionErrorTextbox"
+            MaxWidth="300"
+            TextWrapping="WrapWholeWords" />
+    </StackPanel>
+</ContentDialog>

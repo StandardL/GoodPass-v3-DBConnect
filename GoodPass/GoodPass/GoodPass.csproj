@@ -34,10 +34,12 @@
   <ItemGroup>
     <None Remove="Dialogs\EditDataDialog.xaml" />
     <None Remove="Dialogs\MicrosoftPassportDialog.xaml" />
+    <None Remove="Dialogs\MySQLConnectionErrorDialog.xaml" />
     <None Remove="Dialogs\OOBEAgreementsDialog.xaml" />
     <None Remove="Images\ImageResoueces.xaml" />
     <None Remove="Views\AddDataDialog.xaml" />
     <None Remove="Views\GPDialog2.xaml" />
+    <None Remove="Views\InfoBars\MySQLConnectionErrorInfoBar.xaml" />
     <None Remove="Views\SetMKDialog.xaml" />
   </ItemGroup>
 
@@ -49,8 +51,9 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.3" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.221109.1" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.8" />
+    <PackageReference Include="MySql.Data" Version="8.0.33" />
     <PackageReference Include="WinUIEx" Version="1.8.0" />
 	<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
@@ -59,6 +62,12 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Page Update="Dialogs\MySQLConnectionErrorDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\InfoBars\MySQLConnectionErrorInfoBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Dialogs\MicrosoftPassportDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

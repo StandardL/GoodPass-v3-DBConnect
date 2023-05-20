@@ -403,4 +403,7 @@
   <data name="MPD_PasswordBox.PlaceholderText" xml:space="preserve">
     <value>请输入主密码以验证</value>
   </data>
+  <data name="ShellMenuBarDatabaseInfoIconText.Text" xml:space="preserve">
+    <value>MySQL connection state: </value>
+  </data>
 </root>

@@ -254,15 +254,22 @@ public sealed partial class AddDataDialog : ContentDialog
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="args"></param>
     private void AddDataDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         var result = App.DataManager.AddData(AddDataDialog_PlatformBox.Text, AddDataDialog_PlatformUrlBox.Text, AddDataDialog_AccountBox.Text, AddDataDialog_PasswordBox.Password);
+        
         if (result == true)
         {
             var newdata = App.DataManager.GetData(AddDataDialog_PlatformBox.Text, AddDataDialog_AccountBox.Text);
             if (newdata != null)
             {
                 App.ListDetailsVM.AddDataItem(newdata);
+                App.SQLManager.AddData(newdata);  // SQL增加
                 this.Result = AddDataResult.Success;
             }
             else

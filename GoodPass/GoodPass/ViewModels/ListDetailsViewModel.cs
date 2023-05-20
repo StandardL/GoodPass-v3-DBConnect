@@ -3,19 +3,24 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using GoodPass.Contracts.ViewModels;
 using GoodPass.Models;
 using GoodPass.Services;
+using Microsoft.UI.Xaml.Controls;
 
 namespace GoodPass.ViewModels;
 
 public class ListDetailsViewModel : ObservableRecipient, INavigationAware
 {
-    public void OnNavigatedFrom()
+    #region Properties
+    private GPData? _selectedData;
+
+    public ObservableCollection<GPData> DataItems { get; private set; } = new ObservableCollection<GPData>();
+    #endregion
+
+    #region Constructor and Basic Handlers
+    public ListDetailsViewModel()
     {
     }
 
-    private GPData? _selectedData;
-    public ObservableCollection<GPData> DataItems { get; private set; } = new ObservableCollection<GPData>();
-
-    public ListDetailsViewModel()
+    public void OnNavigatedFrom()
     {
     }
 
@@ -31,7 +36,9 @@ public class ListDetailsViewModel : ObservableRecipient, INavigationAware
         }
         EnsureItemSelected();
     }
+    #endregion
 
+    #region DataItem Controls Functions
     public GPData? SlectedData
     {
         get => _selectedData;
@@ -43,6 +50,18 @@ public class ListDetailsViewModel : ObservableRecipient, INavigationAware
         SlectedData ??= DataItems.First(); //复合分配简化防null代码
     }
 
+    public void GoToData(int index)
+    {
+        if (DataItems == null)
+            throw new ArgumentNullException("GoToData: DataItems is null");
+        if (DataItems.Count > index)
+        {
+            SlectedData = DataItems[index];
+        }
+    }
+    #endregion
+
+    #region Data Functions
     /// <summary>
     /// 实现删除数据的实时响应
     /// </summary>
@@ -59,14 +78,5 @@ public class ListDetailsViewModel : ObservableRecipient, INavigationAware
     {
         DataItems.Add(newData);
     }
-
-    public void GoToData(int index)
-    {
-        if (DataItems == null)
-            throw new ArgumentNullException("GoToData: DataItems is null");
-        if (DataItems.Count > index)
-        {
-            SlectedData = DataItems[index];
-        }
-    }
+    #endregion
 }

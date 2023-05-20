@@ -13,6 +13,7 @@
             <RowDefinition Height="160" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="32" />
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
         <Image

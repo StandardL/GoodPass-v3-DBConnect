@@ -9,6 +9,7 @@
     DefaultButton="Primary"
     PrimaryButtonClick="EditDataDialog_PrimaryButtonClick"
     PrimaryButtonText="确定"
+    Background="{ThemeResource AcrylicBackgroundFillColorBaseBrush}"
     mc:Ignorable="d">
 
     <StackPanel

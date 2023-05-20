@@ -10,6 +10,7 @@ using GoodPass.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 namespace GoodPass;
 
@@ -41,9 +42,30 @@ public partial class App : Application
     public static byte[] AESIV;
 
     /// <summary>
+    /// 全局通知
+    /// </summary>
+    public static InfoBar infoBar = new InfoBar()
+    {
+        IsEnabled = true,
+        Title = "提示",
+        Message = "这是一个全局的信息栏",
+        IsOpen = true,
+        VerticalAlignment = VerticalAlignment.Bottom,
+        Margin = new Thickness(0, 0, 0, 50),
+        MaxWidth = 900
+    };
+    public static bool containsInfobar;
+
+    /// <summary>
     /// 数据管理成员
     /// </summary>
     public static GPManager DataManager;
+
+    /// <summary>
+    /// 数据库连接处理成员
+    /// </summary>
+    public static MySQLConnectionService SQLManager;
+
 
     /// <summary>
     /// 公共的ListDetailViewModel

@@ -36,6 +36,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <AppBarButton
                 x:Name="ShellMenuBarItem_Back"
@@ -128,6 +129,7 @@
             <AppBarButton
                 x:Name="ShellMenuBarAddDataButton"
                 Grid.Column="4"
+                Margin="10,0"
                 Click="ShellMenuBarAddDataButton_Click">
                 <RelativePanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <FontIcon
@@ -163,9 +165,58 @@
                 </TeachingTip.IconSource>
             </TeachingTip>
             <AppBarButton
+                x:Name="ShellMenuBarDatabaseInfoButton"
+                x:Uid="ShellMenuBarDatabaseInfoButton"
+                Grid.Column="5"
+                AnimatedIcon.State="Normal">
+                <FontIcon
+                    x:Name="ShellMenuBarDatabaseInfoIcon"
+                    Margin="0,0,4,0"
+                    FontFamily="Segoe MDL2 Assets"
+                    FontSize="18"
+                    Glyph="&#xE753;" />
+
+                <AppBarButton.Flyout>
+                    <Flyout>
+                        <StackPanel MaxWidth="250" Orientation="Vertical">
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock x:Name="ShellMenuBarDatabaseInfoIconText" x:Uid="ShellMenuBarDatabaseInfoIconText" />
+                                <InfoBadge
+                                    x:Name="ShellMenuBarDatabaseInfoBadge"
+                                    Margin="5,0,0,0"
+                                    VerticalAlignment="Bottom"
+                                    Style="{ThemeResource CriticalIconInfoBadgeStyle}" />
+                                <InfoBadge
+                                    x:Name="SuccessInfoBadge"
+                                    IsEnabled="False"
+                                    Style="{ThemeResource SuccessIconInfoBadgeStyle}"
+                                    Visibility="Collapsed" />
+                                <InfoBadge
+                                    x:Name="FailInfoBadge"
+                                    IsEnabled="False"
+                                    Style="{ThemeResource CriticalIconInfoBadgeStyle}"
+                                    Visibility="Collapsed" />
+                            </StackPanel>
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock
+                                    x:Name="ShellMenuBarDatabaseConnectionChecking"
+                                    x:Uid="ShellMenuBarDatabaseConnectionChecking"
+                                    VerticalAlignment="Center"
+                                    Text="定期检查MySQL连接情况" />
+                                <ToggleSwitch
+                                    x:Name="ShellMenuBarDatabaseConnectionSwitch"
+                                    Margin="5,0,0,0"
+                                    Toggled="ShellMenuBarDatabaseConnectionSwitch_Toggled" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Flyout>
+
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <AppBarButton
                 x:Name="ShellMenuBarSettingsButton"
                 x:Uid="ShellMenuBarSettingsButton"
-                Grid.Column="5"
+                Grid.Column="6"
                 AnimatedIcon.State="Normal"
                 Command="{x:Bind ViewModel.MenuSettingsCommand}"
                 PointerEntered="ShellAnimatedIcon_PointerEntered"
@@ -195,6 +246,16 @@
         </Grid>
         <Grid Grid.Row="2" Margin="{StaticResource MenuBarContentMargin}">
             <Frame x:Name="NavigationFrame" />
+            <InfoBar
+                x:Name="ShellpageInfoBar"
+                x:Uid="ShellpageInfoBar"
+                Grid.Row="3"
+                MaxWidth="900"
+                Margin="0,0,0,50"
+                VerticalAlignment="Bottom"
+                IsOpen="False"
+                Opacity="0.9"
+                Severity="Error" />
         </Grid>
     </Grid>
 </Page>

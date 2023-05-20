@@ -9,6 +9,7 @@
     DefaultButton="Primary"
     PrimaryButtonClick="OOBEAgreementsDialog_PrimaryButtonClick"
     PrimaryButtonText="确定"
+    
     mc:Ignorable="d">
 
     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Stretch">

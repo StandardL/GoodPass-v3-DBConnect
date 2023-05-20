@@ -385,9 +385,6 @@
   <data name="ShellMenuItem_File_Export.Text" xml:space="preserve">
     <value>导出数据</value>
   </data>
-  <data name="AESButton.Content" xml:space="preserve">
-    <value>启用AES加密</value>
-  </data>
   <data name="MicrosoftPassportButton.Content" xml:space="preserve">
     <value>启用Microsoft Passport</value>
   </data>
@@ -405,5 +402,8 @@
   </data>
   <data name="ShellMenuItem_File_ExportPlaintext.Text" xml:space="preserve">
     <value>导出未加密数据</value>
+  </data>
+  <data name="ShellMenuBarDatabaseInfoIconText.Text" xml:space="preserve">
+    <value>MySQL连接情况：</value>
   </data>
 </root>

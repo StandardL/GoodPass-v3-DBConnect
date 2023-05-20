@@ -2,15 +2,18 @@
 using GoodPass.Helpers;
 using GoodPass.Services;
 using GoodPass.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using MySql.Data.MySqlClient;
 using Windows.UI;
 
 namespace GoodPass.Views;
 
-public sealed partial class MainPage : Page
+public partial class MainPage : Page
 {
+    #region Properties
     public MainViewModel ViewModel
     {
         get;
@@ -20,6 +23,9 @@ public sealed partial class MainPage : Page
 
     private bool _PasswordFirst;
 
+    #endregion
+
+    #region Constructor
     public MainPage()
     {
         App.App_Lock();
@@ -38,7 +44,9 @@ public sealed partial class MainPage : Page
             OOBE_LoginBoxTip.IsOpen = false;
         }
     }
+    #endregion
 
+    #region Login Controls Functions
     /// <summary>
     /// 点击解锁按钮的异步事件处理方法
     /// </summary>
@@ -68,6 +76,11 @@ public sealed partial class MainPage : Page
             UnlockWithPassword(Login_PasswordBox.Password);
         }
     }
+
+    /// <summary>
+    /// PasswordBox状态变化事件响应
+    /// </summary>
+    private void Login_PasswordBox_PasswordChanging(PasswordBox sender, PasswordBoxPasswordChangingEventArgs args) => Login_InfoBar.IsOpen = false;
 
     /// <summary>
     /// 回车解锁功能
@@ -110,7 +123,9 @@ public sealed partial class MainPage : Page
             }
         }
     }
+    #endregion
 
+    #region Set/Reset MasterKey Functions
     /// <summary>
     /// 密码设置弹窗
     /// </summary>
@@ -151,12 +166,9 @@ public sealed partial class MainPage : Page
             Login_InfoBar.Message = "成功重设主密码";
         }
     }
+    #endregion
 
-    /// <summary>
-    /// PasswordBox状态变化事件响应
-    /// </summary>
-    private void Login_PasswordBox_PasswordChanging(PasswordBox sender, PasswordBoxPasswordChangingEventArgs args) => Login_InfoBar.IsOpen = false;
-
+    #region Unlock Functions
     /// <summary>
     /// 使用密码解锁方法
     /// </summary>
@@ -173,6 +185,20 @@ public sealed partial class MainPage : Page
         }
         App.DataManager ??= new Models.GPManager(); //为null时才赋值
                                                     //添加解锁逻辑
+        try
+        {
+            App.SQLManager ??= new MySQLConnectionService();  //为空时新建数据库链接实例
+        }
+        catch(Exception me)
+        {
+            var mySQLConnectionErrorDialog = new MySQLConnectionErrorDialog(me.Message)
+            {
+                XamlRoot = this.XamlRoot,
+                Style = App.Current.Resources["DefaultContentDialogStyle"] as Style,
+            };
+            _ = await mySQLConnectionErrorDialog.ShowAsync();
+        }
+
         if (MKCheck_Result == "pass")
         {
             App.App_UnLock();
@@ -181,7 +207,8 @@ public sealed partial class MainPage : Page
             _MSPVerifyTimes = 0;
             App.DataManager.LoadFormFile($"C:\\Users\\{Environment.UserName}\\AppData\\Local\\GoodPass\\GoodPassData.csv");
             App.DataManager.DecryptAllDatas();
-            //App.DataManager.SelfUpdate();
+            App.DataManager.SelfUpdate();
+            App.containsInfobar = LoginPage.FindName("infoBar") != null;
             ViewModel.Login_UnLock();
         }
         else if (MKCheck_Result == "npass")
@@ -252,13 +279,27 @@ public sealed partial class MainPage : Page
             }
             App.DataManager ??= new Models.GPManager(); //为null时才赋值
                                                         //添加解锁逻辑
+            try
+            {
+                App.SQLManager ??= new MySQLConnectionService();  //为空时新建数据库链接实例
+            }
+            catch (Exception me)
+            {
+                var mySQLConnectionErrorDialog = new MySQLConnectionErrorDialog(me.Message)
+                {
+                    XamlRoot = this.XamlRoot,
+                    Style = App.Current.Resources["DefaultContentDialogStyle"] as Style,
+                };
+                _ = await mySQLConnectionErrorDialog.ShowAsync();
+            }
+
             if (MKCheck_Result == "pass")
             {
                 _MSPVerifyTimes = 0;
                 App.App_UnLock();
                 App.DataManager.LoadFormFile($"C:\\Users\\{Environment.UserName}\\AppData\\Local\\GoodPass\\GoodPassData.csv");
                 App.DataManager.DecryptAllDatas();
-                //App.DataManager.SelfUpdate();
+                App.DataManager.SelfUpdate();
                 ViewModel.Login_UnLock();
             }
             else if (MKCheck_Result == "npass")
@@ -299,10 +340,13 @@ public sealed partial class MainPage : Page
             Login_InfoBar.Message = "未知错误！";
         }
     }
+    #endregion
 
+    #region TeachTip Functions
     private async void OOBE_LoginTip_CloseButtonClick(TeachingTip sender, object args)
     {
         OOBE_LoginTip.IsOpen = false;
         _ = await OOBEServices.SetOOBEStatusAsync("MainOOBE", Models.OOBESituation.DIsableOOBE);
     }
+    #endregion
 }

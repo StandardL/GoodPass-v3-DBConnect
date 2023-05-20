@@ -30,6 +30,10 @@ public static class GoodPassDataService
             {
                 data.DataDecrypt();
                 manager.AddData(data);
+                if (App.SQLManager != null)
+                {
+                    App.SQLManager.AddData(data);
+                }
             }
             return datas;
         }
