@@ -13,6 +13,13 @@ This repo is set up to help developer develop GoodPass and stores developing cod
 The codes there may have serious problems, so don't use them for other development!<br>
 </h3>
 
+## New Features:
+Support connecting with MySQL database.
+For current version, since the UI has not been developed yet, you need to compile it yourself if you want to try new features.
+For more infomation about building WinUI3 projects, you can click the link below to check it.
+[中文(简体)](https://github.com/StandardL/VarieableAllocation/blob/main/Readme.md)：请参考该文档的GUI版本编译要求。
+[English](https://github.com/microsoft/WindowsAppSDK-Samples/blob/main/README.md)
+
 Go to [GoodPass](https://github.com/GeorgeDong32/GoodPass) for more detail infomations!
 
 ## License
