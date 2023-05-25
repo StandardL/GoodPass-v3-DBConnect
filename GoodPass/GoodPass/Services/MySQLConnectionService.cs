@@ -27,7 +27,7 @@ public class MySQLConnectionService
     /// <parm name=connectionStringBuilder>数据库连接配置</parm>
     /// <parm name=_tableName>数据库中表格名称</parm>
     private readonly MySqlConnectionStringBuilder connectionStringBuilder;
-    private readonly MySqlConnection mySqlConnection;
+    private MySqlConnection mySqlConnection;
     private static readonly string _tableName = "goodpassdata";
     public MySQLConnectionService()
     {
@@ -35,21 +35,95 @@ public class MySQLConnectionService
         isEnabled = false;  // not used yet.
 
         connectionStringBuilder = new MySqlConnectionStringBuilder();
-        connectionStringBuilder.Database = "your_database_name";                 // 数据库名
-        connectionStringBuilder.Server = "localhost";                            // IP地址
+        /*connectionStringBuilder.Server = "localhost";                            // IP地址
         connectionStringBuilder.Port = 3306;                                     // 端口号
+        connectionStringBuilder.Database = "your_database_name";                 // 数据库名
         connectionStringBuilder.UserID = "your_database_login_user";             // 登录用户名
         connectionStringBuilder.Password = "your_database_login_password";       // 登录密码
+        connectionStringBuilder.Database = "password_data";                 // 数据库名
+        connectionStringBuilder.UserID = "root";             // 登录用户名
+        connectionStringBuilder.Password = "13944tty";       // 登录密码*/
+
+        Helpers.MySQLConfigHelper mySQLConfigHelper = new();
+        var config = mySQLConfigHelper.GetConfig();
+        if (config.IP != null && config.Port != null && config.dbName != null && config.Username != null && config.Password != null)
+        {
+            connectionStringBuilder.Clear();
+            connectionStringBuilder.Server = config.IP;
+            connectionStringBuilder.Port = uint.Parse(config.Port);
+            connectionStringBuilder.Database = config.dbName;
+            connectionStringBuilder.UserID = config.Username;
+            connectionStringBuilder.Password = config.Password;
+        }
+
+        mySqlConnection = new();
+
 
         // 传入连接数据并启动连接
-        mySqlConnection = new(connectionStringBuilder.ConnectionString);
+        // mySqlConnection = new(connectionStringBuilder.ConnectionString);
     }
+
+    #region SQL连接相关函数
+    /// <summary>
+    /// 检测MySQL服务器连接情况的方法
+    /// </summary>
+    /// <returns>MySQL服务器连接情况</returns>
+    public bool ConnectionState()
+    {
+        bool isConnected = false;
+        try
+        {
+            mySqlConnection.Open();
+            isConnected = true;
+            Connected = true;
+        }
+        catch (Exception ex)
+        {
+            Connected = false;
+            Debug.WriteLine(ex.Message);
+            throw new Exception(ex.Message);
+        }
+        finally
+        {
+            mySqlConnection.Close();
+        }
+        return isConnected;
+    }
+
+    // 更新连接信息
+    public void UpdateConnection()
+    {
+        Helpers.MySQLConfigHelper mySQLConfigHelper = new();
+        var config = mySQLConfigHelper.GetConfig();
+
+        if (config.IP != null && config.Port != null && config.dbName != null && config.Username != null && config.Password != null)
+        {
+            connectionStringBuilder.Clear();
+            connectionStringBuilder.Server = config.IP;
+            connectionStringBuilder.Port = uint.Parse(config.Port);
+            connectionStringBuilder.Database = config.dbName;
+            connectionStringBuilder.UserID = config.Username;
+            connectionStringBuilder.Password = config.Password;
+
+            mySqlConnection.ConnectionString = connectionStringBuilder.ConnectionString;
+        }
+        try
+        {
+            _ = this.ConnectionState();
+        }
+        catch(Exception ex) 
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    #endregion
 
     #region SQL语句执行
     /// <summary>
     /// 执行SQL语句函数
     /// </summary>
-    /// <param name="sql"></param>
+    /// <param name="sql">传入的SQL语句</param>
     /// <returns>是否成功执行SQL语句</returns>
     private bool ExecuteSQLCommand(string sql)
     {
@@ -87,7 +161,6 @@ public class MySQLConnectionService
 
         return true;
     }
-
     private List<GPData> ExecuteSQLCommandForSearch(string sql)
     {
         // 确保服务器连接已成功连上
@@ -145,34 +218,9 @@ public class MySQLConnectionService
 
         return search_result;
     }
-
     #endregion
 
-    /// <summary>
-    /// 检测MySQL服务器连接情况的方法
-    /// </summary>
-    /// <returns>MySQL服务器连接情况</returns>
-    public bool ConnectionState()
-    {
-        bool isConnected = false;
-        try
-        {
-            mySqlConnection.Open();
-            isConnected = true;
-            Connected = true;
-        }
-        catch(Exception ex)
-        {
-            Connected = false;
-            throw new Exception(ex.Message);
-            Debug.WriteLine(ex.Message);
-        }
-        finally
-        {
-            mySqlConnection.Close();
-        }
-        return isConnected;
-    }
+    
 
     /// <summary>
     /// 在初次连接时，创建对应的表的预留接口
@@ -289,6 +337,13 @@ public class MySQLConnectionService
     {
         var sql_search = "SELECT * FROM " + _tableName + 
                          " WHERE (PlatformName LIKE '%" + text + "%' OR AccountName LIKE '%" + text + "%');";
+
+        return ExecuteSQLCommandForSearch(sql_search);
+    }
+
+    public List<GPData> getAllData()
+    {
+        var sql_search = "SELECT * FROM " + _tableName;    
 
         return ExecuteSQLCommandForSearch(sql_search);
     }

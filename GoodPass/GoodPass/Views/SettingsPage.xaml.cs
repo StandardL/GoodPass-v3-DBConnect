@@ -27,10 +27,14 @@ public sealed partial class SettingsPage : Page
         if (App.App_IsLock())
         {
             MicrosoftPassportButton.IsEnabled = false;
+            MySQLSyncButton.IsEnabled = false;
+            MySQLSettingButton.IsEnabled = false;
         }
         else
         {
             MicrosoftPassportButton.IsEnabled = true;
+            MySQLSyncButton.IsEnabled = true;
+            MySQLSettingButton.IsEnabled = true;
         }
         switch (SecurityStatusHelper.GetMSPassportStatusAsync().Result)
         {
@@ -43,6 +47,22 @@ public sealed partial class SettingsPage : Page
                 MicrosoftPassportButton.IsChecked = false;
                 MicrosoftPassportSituationIcon.Glyph = "\xE711";
                 MicrosoftPassportSituationText.Text = App.UIStrings.MicrosoftPassportSituatoinText2;
+                break;
+        }
+
+        Helpers.MySQLConfigHelper mySQLConfigHelper = new();
+        var MySQLres = mySQLConfigHelper.GetMySQLStatusAsync();
+        switch(MySQLres.Result)
+        {
+            case true:
+                MySQLSyncButton.IsChecked = true;
+                MySQLSyncSituationIcon.Glyph = "\xE73E";
+                MySQLSyncSituationText.Text = "已启用MySQL同步";
+                break;
+            case false:
+                MySQLSyncButton.IsChecked = false;
+                MySQLSyncSituationText.Text = "已禁用MySQL同步";
+                MySQLSyncSituationIcon.Glyph = "\xE711";
                 break;
         }
     }
@@ -108,4 +128,47 @@ public sealed partial class SettingsPage : Page
     }
 
     #endregion
+
+    private async void MySQLSyncButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is ToggleButton tb)
+        {
+            Helpers.MySQLConfigHelper mySQLConfigHelper = new();
+            switch (tb.IsChecked)
+            {
+                case true:
+                    _ = await mySQLConfigHelper.SetMySQLStatusAsync(true);
+                    MySQLSyncSituationIcon.Glyph = "\xE73E";
+                    MySQLSyncSituationText.Text = "已启用MySQL同步";
+                    App.SQLManager ??= new();
+                    MySQLConfigurationDialog configDialog = new MySQLConfigurationDialog()
+                    {
+                        XamlRoot = this.XamlRoot,
+                        Style = App.Current.Resources["DefaultContentDialogStyle"] as Style,
+                    };
+                    _ = await configDialog.ShowAsync();
+                    App.SQLManager.isEnabled = true;
+                    break;
+
+                case false:
+                    _ = await mySQLConfigHelper.SetMySQLStatusAsync(false);
+                    MySQLSyncSituationText.Text = "已禁用MySQL同步";
+                    MySQLSyncSituationIcon.Glyph = "\xE711";
+                    App.SQLManager ??= new();
+                    App.SQLManager.isEnabled = false;
+                    break;
+            }
+        }
+    }
+
+    private async void MySQLSettingButton_Click(object sender, RoutedEventArgs e)
+    {
+        MySQLConfigurationDialog configDialog = new MySQLConfigurationDialog()
+        {
+            XamlRoot = this.XamlRoot,
+            Style = App.Current.Resources["DefaultContentDialogStyle"] as Style,
+        };
+
+        _ = await configDialog.ShowAsync();
+    }
 }

@@ -77,6 +77,7 @@
                     <ToggleButton
                         x:Name="MicrosoftPassportButton"
                         x:Uid="MicrosoftPassportButton"
+                        Width="168"
                         Click="MicrosoftPassportButton_Click"
                         RelativePanel.AlignLeftWithPanel="True">
                         <ToggleButton.ContextFlyout>
@@ -102,6 +103,45 @@
                             x:Uid="MicrosoftPassportSituationText"
                             Margin="4,0,0,0"
                             RelativePanel.RightOf="MicrosoftPassportSituationIcon" />
+                    </RelativePanel>
+                </RelativePanel>
+
+                <RelativePanel x:Name="MySQLSyncPanel" Margin="0,0,0,8">
+                    <ToggleButton
+                        x:Name="MySQLSyncButton"
+                        x:Uid="MySQLSyncButton"
+                        Width="168"
+                        Click="MySQLSyncButton_Click"
+                        Content="启用MySQL数据库同步"
+                        RelativePanel.AlignLeftWithPanel="True" />
+                    <RelativePanel
+                        x:Name="MySQLSyncSituation"
+                        RelativePanel.AlignBottomWithPanel="True"
+                        RelativePanel.RightOf="MySQLSyncButton">
+                        <Button
+                            x:Name="MySQLSettingButton"
+                            Height="32"
+                            Margin="4,0,0,0"
+                            VerticalAlignment="Bottom"
+                            Click="MySQLSettingButton_Click"
+                            Content="&#xE9F5;"
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="14" />
+                        <FontIcon
+                            x:Name="MySQLSyncSituationIcon"
+                            Margin="8,2,0,8"
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="14"
+                            Glyph="&#xE711;"
+                            RelativePanel.AlignHorizontalCenterWithPanel="True"
+                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                            RelativePanel.RightOf="MySQLSettingButton" />
+                        <!--  E711 叉图标，E73E 勾图标  -->
+                        <TextBlock
+                            x:Name="MySQLSyncSituationText"
+                            x:Uid="MySQLSyncSituationText"
+                            Margin="4,0,0,0"
+                            RelativePanel.RightOf="MySQLSyncSituationIcon" />
                     </RelativePanel>
                 </RelativePanel>
             </StackPanel>

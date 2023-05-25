@@ -163,7 +163,12 @@ public sealed partial class ListDetailsDetailControl : UserControl
             try
             {
                 App.ListDetailsVM.DeleteDataItem(App.DataManager.GetData(tarPlatform, tarAccountName));
-                sql_result = App.SQLManager.DeleteData(tarPlatform, tarAccountName);  // SQL删除
+
+                Helpers.MySQLConfigHelper mySQL = new();
+                if (mySQL.GetMySQLStatusAsync().Result)
+                {
+                    sql_result = App.SQLManager.DeleteData(tarPlatform, tarAccountName);  // SQL删除
+                }
 
                 var delResult = App.DataManager.DeleteData(tarPlatform, tarAccountName);
                 if (delResult == false)
@@ -196,18 +201,23 @@ public sealed partial class ListDetailsDetailControl : UserControl
             ListDetailsDetailControl_DeleteButton.IsEnabled = true;
         }
 
-        if (sql_result == false)
+        Helpers.MySQLConfigHelper mySQLConfigHelper = new();
+        if (mySQLConfigHelper.GetMySQLStatusAsync().Result)
         {
-            var message = "因为某种原因，向MySQL发起删除请求失败。请检查以下几种情况：\n1.MySQL服务是否能正常连接？可以点击右上角的云朵图标进行检查" +
-                          "\n2.是否删除了不存在的内容？\n3.若前面几点已确认无异常，请及时向开发者反馈.";
-            MySQLConnectionErrorDialog mySQLConnectionErrorDialog = new MySQLConnectionErrorDialog("MySQL Delete Failed", message)
+            if (sql_result == false)
             {
-                XamlRoot = this.XamlRoot,
-                Style = App.Current.Resources["DefaultContentDialogStyle"] as Style
-            };
-            _ = await mySQLConnectionErrorDialog.ShowAsync();
-
+                var message = "因为某种原因，向MySQL发起删除请求失败。请检查以下几种情况：\n1.MySQL服务是否能正常连接？可以点击右上角的云朵图标进行检查" +
+                              "\n2.是否删除了不存在的内容？\n3.若前面几点已确认无异常，请及时向开发者反馈.";
+                MySQLConnectionErrorDialog mySQLConnectionErrorDialog = new MySQLConnectionErrorDialog("MySQL Delete Failed", message)
+                {
+                    XamlRoot = this.XamlRoot,
+                    Style = App.Current.Resources["DefaultContentDialogStyle"] as Style
+                };
+                _ = await mySQLConnectionErrorDialog.ShowAsync();
+            }
         }
+
+        
     }
     #endregion
 

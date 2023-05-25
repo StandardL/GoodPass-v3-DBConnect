@@ -11,8 +11,8 @@
 
   <Identity
     Name="CAFB1BC6-D2EC-4C70-A2E4-3622C29FBD0C"
-    Publisher="CN=GeorgeDong"
-    Version="3.2.0.0" />
+    Publisher="CN=Standard_L"
+    Version="3.3.0.0" />
 
   <Properties>
     <DisplayName>GoodPass</DisplayName>

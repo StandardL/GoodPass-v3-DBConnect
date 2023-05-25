@@ -270,15 +270,23 @@ public sealed partial class AddDataDialog : ContentDialog
             if (newdata != null)
             {
                 App.ListDetailsVM.AddDataItem(newdata);
-                try
+                Helpers.MySQLConfigHelper mySQLConfigHelper = new();
+                if (mySQLConfigHelper.GetMySQLStatusAsync().Result)
                 {
-                    var res = App.SQLManager.AddData(newdata);  // SQL增加
-                    if (res)
-                        this.SQLResult = SQLAddDataResult.Success;
-                    else
+                    try
+                    {
+                        var res = App.SQLManager.AddData(newdata);  // SQL增加
+                        if (res)
+                            this.SQLResult = SQLAddDataResult.Success;
+                        else
+                            this.SQLResult = SQLAddDataResult.Failure_Duplicate;
+                    }
+                    catch (Exception ex)
+                    {
                         this.SQLResult = SQLAddDataResult.Failure_Duplicate;
+                    }
                 }
-                catch(Exception ex) 
+                else
                 {
                     this.SQLResult = SQLAddDataResult.Failure_Duplicate;
                 }

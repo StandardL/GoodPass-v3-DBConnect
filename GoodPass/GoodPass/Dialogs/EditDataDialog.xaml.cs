@@ -314,7 +314,7 @@ public sealed partial class EditDataDialog : ContentDialog
             {
                 newPlatformUrl = EditDataDialog_PlatformUrlBox.Text;
                 var check = App.DataManager.ChangeUrl(oldPlatformName, oldAccountName, EditDataDialog_PlatformUrlBox.Text);
-                var sql_check = App.SQLManager.UpdateData_Url(oldPlatformName, oldAccountName, EditDataDialog_PlatformUrlBox.Text, DateTime.Now);  // SQL修改
+                
                 if (check)
                 {
                     this.Result = EditDataResult.Success;
@@ -323,15 +323,24 @@ public sealed partial class EditDataDialog : ContentDialog
                 {
                     this.Result = EditDataResult.Failure;
                 }
-
-                if (sql_check)
+                Helpers.MySQLConfigHelper mySQLConfigHelper = new();
+                if (mySQLConfigHelper.GetMySQLStatusAsync().Result)
                 {
-                    this.SQLResult = SQlEditDataResult.Success;
+                    var sql_check = App.SQLManager.UpdateData_Url(oldPlatformName, oldAccountName, EditDataDialog_PlatformUrlBox.Text, DateTime.Now);  // SQL修改
+                    if (sql_check)
+                    {
+                        this.SQLResult = SQlEditDataResult.Success;
+                    }
+                    else
+                    {
+                        this.SQLResult = SQlEditDataResult.Failure;
+                    }
                 }
                 else
                 {
                     this.SQLResult = SQlEditDataResult.Failure;
                 }
+                
             }
             if (EditDataDialog_PasswordBox.Password != oldPassword)
             {

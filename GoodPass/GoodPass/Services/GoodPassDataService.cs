@@ -30,9 +30,13 @@ public static class GoodPassDataService
             {
                 data.DataDecrypt();
                 manager.AddData(data);
-                if (App.SQLManager != null)
+                Helpers.MySQLConfigHelper mySQLConfigHelper = new();
+                if (mySQLConfigHelper.GetMySQLStatusAsync().Result)
                 {
-                    App.SQLManager.AddData(data);
+                    if (App.SQLManager != null)
+                    {
+                        App.SQLManager.AddData(data);
+                    }
                 }
             }
             return datas;

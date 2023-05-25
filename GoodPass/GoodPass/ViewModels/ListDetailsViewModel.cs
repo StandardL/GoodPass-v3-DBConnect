@@ -34,6 +34,7 @@ public class ListDetailsViewModel : ObservableRecipient, INavigationAware
         {
             DataItems.Add(data);
         }
+
         EnsureItemSelected();
     }
     #endregion

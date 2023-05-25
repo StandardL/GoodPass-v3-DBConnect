@@ -185,20 +185,36 @@ public partial class MainPage : Page
         }
         App.DataManager ??= new Models.GPManager(); //为null时才赋值
                                                     //添加解锁逻辑
-        try
+
+        Helpers.MySQLConfigHelper mySQLConfigHelper = new();
+        var mysqlenable = await mySQLConfigHelper.GetMySQLStatusAsync();
+        if (mysqlenable)
         {
-            App.SQLManager ??= new MySQLConnectionService();  //为空时新建数据库链接实例
-            App.SQLManager.ConnectionState();
-        }
-        catch(Exception me)
-        {
-            var mySQLConnectionErrorDialog = new MySQLConnectionErrorDialog(me.Message)
+            try
             {
-                XamlRoot = this.XamlRoot,
-                Style = App.Current.Resources["DefaultContentDialogStyle"] as Style,
-            };
-            _ = await mySQLConnectionErrorDialog.ShowAsync();
+                App.SQLManager ??= new MySQLConnectionService();  //为空时新建数据库链接实例
+                if (App.SQLManager.Connected == false)
+                {
+                    MySQLConfigurationDialog dialog = new()
+                    {
+                        XamlRoot = this.XamlRoot,
+                        Style = App.Current.Resources["DefaultContentDialogStyle"] as Style,
+                    };
+                    _ = await dialog.ShowAsync();
+                }
+                App.SQLManager.ConnectionState();
+            }
+            catch (Exception me)
+            {
+                var mySQLConnectionErrorDialog = new MySQLConnectionErrorDialog(me.Message)
+                {
+                    XamlRoot = this.XamlRoot,
+                    Style = App.Current.Resources["DefaultContentDialogStyle"] as Style,
+                };
+                _ = await mySQLConnectionErrorDialog.ShowAsync();
+            }
         }
+        
 
         if (MKCheck_Result == "pass")
         {
@@ -280,19 +296,33 @@ public partial class MainPage : Page
             }
             App.DataManager ??= new Models.GPManager(); //为null时才赋值
                                                         //添加解锁逻辑
-            try
+            Helpers.MySQLConfigHelper mySQLConfigHelper = new();
+            var mysqlenable = await mySQLConfigHelper.GetMySQLStatusAsync();
+            if (mysqlenable)
             {
-                App.SQLManager ??= new MySQLConnectionService();  //为空时新建数据库链接实例
-                App.SQLManager.ConnectionState();
-            }
-            catch (Exception me)
-            {
-                var mySQLConnectionErrorDialog = new MySQLConnectionErrorDialog(me.Message)
+                try
                 {
-                    XamlRoot = this.XamlRoot,
-                    Style = App.Current.Resources["DefaultContentDialogStyle"] as Style,
-                };
-                _ = await mySQLConnectionErrorDialog.ShowAsync();
+                    App.SQLManager ??= new MySQLConnectionService();  //为空时新建数据库链接实例
+                    if (App.SQLManager.Connected == false)
+                    {
+                        MySQLConfigurationDialog dialog = new()
+                        {
+                            XamlRoot = this.XamlRoot,
+                            Style = App.Current.Resources["DefaultContentDialogStyle"] as Style,
+                        };
+                        _ = await dialog.ShowAsync();
+                    }
+                    App.SQLManager.ConnectionState();
+                }
+                catch (Exception me)
+                {
+                    var mySQLConnectionErrorDialog = new MySQLConnectionErrorDialog(me.Message)
+                    {
+                        XamlRoot = this.XamlRoot,
+                        Style = App.Current.Resources["DefaultContentDialogStyle"] as Style,
+                    };
+                    _ = await mySQLConnectionErrorDialog.ShowAsync();
+                }
             }
 
             if (MKCheck_Result == "pass")
