@@ -16,7 +16,7 @@ The codes there may have serious problems, so don't use them for other developme
 ## New Features:
 Support connecting with `MySQL` database.
 
-For current version, since the UI has not been developed yet, you need to **compile it yourself** if you want to try new features.
+For current version, there are still some bugs in MySQL connection, if you meet any problem, plez create an issue asap.
 
 For more infomation about building WinUI3 projects, you can click the link below to check it.
 
